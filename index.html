@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Menú Semanal</title>
+  <title>Menú Semanal Saludable</title>
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#a0522d" />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -17,8 +17,9 @@
       background-color: #2c2c2c;
       color: #f5f5f5;
       border: 1px solid #555;
-      padding: 4px;
+      padding: 10px;
       width: 100%;
+      font-size: 0.9rem;
     }
     input:focus {
       outline: none;
@@ -28,10 +29,10 @@
       background-color: #3b3b3b;
       color: #f5f5f5;
       border: 1px solid #a0522d;
-      padding: 8px 16px;
-      margin: 4px;
+      padding: 10px 20px;
+      margin: 6px;
       cursor: pointer;
-      border-radius: 4px;
+      border-radius: 6px;
     }
     .btn:hover {
       background-color: #a0522d;
@@ -40,34 +41,59 @@
       background-color: #2c2c2c;
       color: #f5f5f5;
       border: 1px solid #555;
-      padding: 8px;
+      padding: 10px;
       width: 100%;
-      min-height: 120px;
+      min-height: 140px;
+      font-size: 0.9rem;
+    }
+    @media print {
+      body {
+        background: white;
+        color: black;
+      }
+      table, .btn, select, #menu-table {
+        display: none !important;
+      }
+      #lista-compra {
+        display: block !important;
+        border: none;
+        background: none;
+        color: black;
+        font-size: 1rem;
+        white-space: pre-wrap;
+      }
+      #titulo {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: black;
+      }
     }
   </style>
 </head>
 <body class="p-4">
-  <h1 class="text-3xl font-bold mb-6 text-center">🍽️ Planificador de Menú Semanal</h1>
+  <h1 id="titulo" class="text-3xl font-bold mb-6 text-center">🥗 Planificador de Menú Semanal</h1>
+
+  <div class="flex justify-center mb-4">
+    <select id="tipo-menu" onchange="actualizarTitulo()" class="bg-[#2c2c2c] text-white border border-[#a0522d] p-2 rounded">
+      <option value="vegan">Menú Vegano</option>
+      <option value="high-protein">Ganar Masa Muscular</option>
+      <option value="balanced">Mantener el Peso</option>
+      <option value="low-fat">Adelgazar</option>
+      <option value="kid-friendly">Menú Infantil</option>
+    </select>
+  </div>
 
   <div class="overflow-x-auto mb-6">
     <table class="table-auto w-full text-center border-collapse">
       <thead>
         <tr class="bg-[#2c2c2c]">
-          <th class="p-2 border">Comida/Día</th>
-          <th class="p-2 border">Lunes</th>
-          <th class="p-2 border">Martes</th>
-          <th class="p-2 border">Miércoles</th>
-          <th class="p-2 border">Jueves</th>
-          <th class="p-2 border">Viernes</th>
-          <th class="p-2 border">Sábado</th>
-          <th class="p-2 border">Domingo</th>
+          <th class="p-2 border">Día</th>
+          <th class="p-2 border">Desayuno</th>
+          <th class="p-2 border">Comida</th>
+          <th class="p-2 border">Cena</th>
         </tr>
       </thead>
-      <tbody id="menu-table">
-        <tr><td class="p-2 border">Desayuno</td></tr>
-        <tr><td class="p-2 border">Comida</td></tr>
-        <tr><td class="p-2 border">Cena</td></tr>
-      </tbody>
+      <tbody id="menu-table"></tbody>
     </table>
   </div>
 
@@ -80,30 +106,40 @@
   <h2 class="text-xl font-semibold mb-2">📝 Lista de la Compra</h2>
   <textarea id="lista-compra" readonly></textarea>
 
-  <h2 class="text-xl font-semibold mt-6">📌 Instrucciones</h2>
-  <ul class="list-disc pl-6">
-    <li>Haz clic en cualquier celda para escribir tu plato.</li>
-    <li>Usa el botón "Sugerir Menú Saludable" para generar ideas equilibradas.</li>
-    <li>Haz clic en "Limpiar Tabla" para empezar de nuevo.</li>
-    <li>Haz clic en "Lista de la Compra" para obtener los ingredientes necesarios.</li>
-    <li>Guarda este archivo como <strong>index.html</strong> y ábrelo con doble clic en tu navegador.</li>
-    <li>Sube este proyecto a GitHub Pages para instalarlo como app en tu dispositivo.</li>
-  </ul>
-
   <script>
-    const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-    const comidas = ["Desayuno", "Comida", "Cena"];
-    const platos = {
-      Desayuno: ["Avena con frutas", "Tostadas integrales con aguacate", "Yogur natural con nueces", "Smoothie verde", "Huevos revueltos con espinacas", "Pan integral con tomate", "Fruta fresca con semillas"],
-      Comida: ["Ensalada de quinoa", "Pollo al horno con verduras", "Lentejas con arroz integral", "Salmón a la plancha con brócoli", "Tacos de tofu con guacamole", "Pisto con huevo", "Curry de garbanzos"],
-      Cena: ["Crema de calabaza", "Ensalada de garbanzos", "Tortilla de verduras", "Sopa de miso con tofu", "Verduras al vapor con hummus", "Gazpacho andaluz", "Salteado de verduras con arroz"]
-    };
+  const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+  const comidas = ["Desayuno", "Comida", "Cena"];
 
-    const tabla = document.getElementById("menu-table");
+  const platosBase = {
+    Desayuno: [
+      "🍌 Avena con plátano", "🥑 Tostadas con aguacate", "🍓 Yogur con frutos rojos",
+      "🥬 Smoothie verde", "🍳 Huevos con espinacas", "🍞 Pan integral con tomate",
+      "🍍 Fruta fresca con semillas", "🥜 Batido de proteína vegetal", "🍯 Requesón con nueces"
+    ],
+    Comida: [
+      "🥗 Ensalada de quinoa", "🍗 Pollo al horno con verduras", "🍛 Lentejas con arroz integral",
+      "🐟 Salmón con brócoli", "🌮 Tacos de tofu", "🍅 Pisto con huevo", "🥘 Curry de garbanzos",
+      "🥩 Ternera con boniato", "🍝 Pasta integral con atún", "🍳 Tortilla de claras con espinacas"
+    ],
+    Cena: [
+      "🎃 Crema de calabaza", "🥒 Ensalada de garbanzos", "🍳 Tortilla de verduras",
+      "🍲 Sopa de miso", "🥦 Verduras al vapor", "🍅 Gazpacho andaluz",
+      "🍚 Salteado de arroz y verduras", "🐟 Merluza al vapor", "🍗 Pechuga de pollo a la plancha"
+    ]
+  };
 
-    comidas.forEach((comida, i) => {
-      const fila = tabla.rows[i];
-      dias.forEach(() => {
+  const tabla = document.getElementById("menu-table");
+
+  function crearTabla() {
+    tabla.innerHTML = "";
+    dias.forEach(dia => {
+      const fila = document.createElement("tr");
+      const celdaDia = document.createElement("td");
+      celdaDia.className = "p-2 border font-semibold";
+      celdaDia.textContent = dia;
+      fila.appendChild(celdaDia);
+
+      comidas.forEach(() => {
         const celda = document.createElement("td");
         celda.className = "p-2 border";
         const input = document.createElement("input");
@@ -111,59 +147,96 @@
         celda.appendChild(input);
         fila.appendChild(celda);
       });
+
+      tabla.appendChild(fila);
+    });
+  }
+
+  function filtrarPlatos(tipoMenu) {
+    const sinCarne = (plato) => !plato.includes("🐟") && !plato.includes("🍗") && !plato.includes("🥩") && !plato.includes("🍝");
+    const ricosEnProteina = (plato) => plato.includes("🍗") || plato.includes("🐟") || plato.includes("🥩") || plato.includes("🍳") || plato.includes("🥜") || plato.includes("🍯");
+
+    const filtrados = { Desayuno: [], Comida: [], Cena: [] };
+
+    comidas.forEach(comida => {
+      const lista = platosBase[comida];
+      if (tipoMenu === "vegan") {
+        filtrados[comida] = lista.filter(sinCarne);
+      } else if (tipoMenu === "high-protein") {
+        filtrados[comida] = lista.filter(ricosEnProteina);
+      } else {
+        filtrados[comida] = lista;
+      }
     });
 
-    function generarMenu() {
-      const usados = { Desayuno: new Set(), Comida: new Set(), Cena: new Set() };
+    return filtrados;
+  }
 
-      comidas.forEach((comida, i) => {
-        dias.forEach((_, j) => {
-          let sugerencia;
-          let intentos = 0;
-          do {
-            sugerencia = platos[comida][Math.floor(Math.random() * platos[comida].length)];
-            intentos++;
-          } while (
-            usados[comida].has(sugerencia) ||
-            (comida === "Cena" && tabla.rows[1].cells[j + 1].querySelector("input").value.includes(sugerencia)) ||
-            intentos > 10
-          );
-          usados[comida].add(sugerencia);
-          tabla.rows[i].cells[j + 1].querySelector("input").value = sugerencia;
-        });
-      });
-    }
+  function generarMenu() {
+    const tipoMenu = document.getElementById("tipo-menu").value;
+    const platos = filtrarPlatos(tipoMenu);
+    const filas = document.querySelectorAll("#menu-table tr");
 
-    function limpiarMenu() {
-      comidas.forEach((_, i) => {
-        dias.forEach((_, j) => {
-          tabla.rows[i].cells[j + 1].querySelector("input").value = "";
-        });
+    filas.forEach((fila, i) => {
+      const usados = new Set();
+      comidas.forEach((tipo, j) => {
+        let sugerencia;
+        let intentos = 0;
+        do {
+          const opciones = platos[tipo];
+          sugerencia = opciones[Math.floor(Math.random() * opciones.length)];
+          intentos++;
+        } while (usados.has(sugerencia) && intentos < 10);
+        usados.add(sugerencia);
+        const input = fila.cells[j + 1].querySelector("input");
+        if (input) input.value = sugerencia;
       });
-      document.getElementById("lista-compra").value = "";
-    }
+    });
+  }
 
-    function generarLista() {
-      const ingredientes = new Set();
-      comidas.forEach((_, i) => {
-        dias.forEach((_, j) => {
-          const plato = tabla.rows[i].cells[j + 1].querySelector("input").value.trim();
-          if (plato) ingredientes.add(plato);
-        });
+  function limpiarMenu() {
+    const filas = document.querySelectorAll("#menu-table tr");
+    filas.forEach(fila => {
+      comidas.forEach((_, j) => {
+        const input = fila.cells[j + 1].querySelector("input");
+        if (input) input.value = "";
       });
-      document.getElementById("lista-compra").value = [...ingredientes].join("\n");
-    }
-  </script>
+    });
+    document.getElementById("lista-compra").value = "";
+  }
 
-  <!-- Service Worker Registration -->
-  <script>
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("sw.js")
-          .then(reg => console.log("✅ Service Worker registrado:", reg.scope))
-          .catch(err => console.error("❌ Error al registrar el Service Worker:", err));
+  function generarLista() {
+    const ingredientes = new Set();
+    const filas = document.querySelectorAll("#menu-table tr");
+    filas.forEach(fila => {
+      comidas.forEach((_, j) => {
+        const input = fila.cells[j + 1].querySelector("input");
+        const plato = input?.value.trim();
+        if (plato) ingredientes.add(plato);
       });
-    }
-  </script>
+    });
+    document.getElementById("lista-compra").value = [...ingredientes].join("\n");
+  }
+
+  function actualizarTitulo() {
+    const tipoTexto = document.getElementById("tipo-menu").selectedOptions[0].textContent;
+    document.getElementById("titulo").textContent = `🥗 Planificador de Menú Semanal (${tipoTexto})`;
+  }
+
+  window.addEventListener("load", () => {
+    crearTabla();
+    actualizarTitulo();
+  });
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js")
+        .then(reg => console.log("✅ Service Worker registrado:", reg.scope))
+        .catch(err => console.error("❌ Error al registrar el Service Worker:", err));
+    });
+  }
+</script>
 </body>
 </html>

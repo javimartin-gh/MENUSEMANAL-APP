@@ -1,7 +1,6 @@
 {
-  "name": "Menú Semanal",
-  "short_name": "Menú",
-  "description": "Planificador de menú semanal saludable",
+  "name": "Menú Semanal Saludable",
+  "short_name": "Menú Saludable",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#1f1f1f",
