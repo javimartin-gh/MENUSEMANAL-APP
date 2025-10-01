@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menú Semanal</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#a0522d" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #1f1f1f;
+      color: #f5f5f5;
+    }
+    input {
+      background-color: #2c2c2c;
+      color: #f5f5f5;
+      border: 1px solid #555;
+      padding: 4px;
+      width: 100%;
+    }
+    input:focus {
+      outline: none;
+      border-color: #a0522d;
+    }
+    .btn {
+      background-color: #3b3b3b;
+      color: #f5f5f5;
+      border: 1px solid #a0522d;
+      padding: 8px 16px;
+      margin: 4px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .btn:hover {
+      background-color: #a0522d;
+    }
+    textarea {
+      background-color: #2c2c2c;
+      color: #f5f5f5;
+      border: 1px solid #555;
+      padding: 8px;
+      width: 100%;
+      min-height: 120px;
+    }
+  </style>
+</head>
+<body class="p-4">
+  <h1 class="text-3xl font-bold mb-6 text-center">🍽️ Planificador de Menú Semanal</h1>
+
+  <div class="overflow-x-auto mb-6">
+    <table class="table-auto w-full text-center border-collapse">
+      <thead>
+        <tr class="bg-[#2c2c2c]">
+          <th class="p-2 border">Comida/Día</th>
+          <th class="p-2 border">Lunes</th>
+          <th class="p-2 border">Martes</th>
+          <th class="p-2 border">Miércoles</th>
+          <th class="p-2 border">Jueves</th>
+          <th class="p-2 border">Viernes</th>
+          <th class="p-2 border">Sábado</th>
+          <th class="p-2 border">Domingo</th>
+        </tr>
+      </thead>
+      <tbody id="menu-table">
+        <tr><td class="p-2 border">Desayuno</td></tr>
+        <tr><td class="p-2 border">Comida</td></tr>
+        <tr><td class="p-2 border">Cena</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex flex-wrap justify-center mb-6">
+    <button class="btn" onclick="generarMenu()">🎲 Sugerir Menú Saludable</button>
+    <button class="btn" onclick="limpiarMenu()">🧹 Limpiar Tabla</button>
+    <button class="btn" onclick="generarLista()">🛒 Lista de la Compra</button>
+  </div>
+
+  <h2 class="text-xl font-semibold mb-2">📝 Lista de la Compra</h2>
+  <textarea id="lista-compra" readonly></textarea>
+
+  <h2 class="text-xl font-semibold mt-6">📌 Instrucciones</h2>
+  <ul class="list-disc pl-6">
+    <li>Haz clic en cualquier celda para escribir tu plato.</li>
+    <li>Usa el botón "Sugerir Menú Saludable" para generar ideas equilibradas.</li>
+    <li>Haz clic en "Limpiar Tabla" para empezar de nuevo.</li>
+    <li>Haz clic en "Lista de la Compra" para obtener los ingredientes necesarios.</li>
+    <li>Guarda este archivo como <strong>index.html</strong> y ábrelo con doble clic en tu navegador.</li>
+    <li>Sube este proyecto a GitHub Pages para instalarlo como app en tu dispositivo.</li>
+  </ul>
+
+  <script>
+    const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+    const comidas = ["Desayuno", "Comida", "Cena"];
+    const platos = {
+      Desayuno: ["Avena con frutas", "Tostadas integrales con aguacate", "Yogur natural con nueces", "Smoothie verde", "Huevos revueltos con espinacas", "Pan integral con tomate", "Fruta fresca con semillas"],
+      Comida: ["Ensalada de quinoa", "Pollo al horno con verduras", "Lentejas con arroz integral", "Salmón a la plancha con brócoli", "Tacos de tofu con guacamole", "Pisto con huevo", "Curry de garbanzos"],
+      Cena: ["Crema de calabaza", "Ensalada de garbanzos", "Tortilla de verduras", "Sopa de miso con tofu", "Verduras al vapor con hummus", "Gazpacho andaluz", "Salteado de verduras con arroz"]
+    };
+
+    const tabla = document.getElementById("menu-table");
+
+    comidas.forEach((comida, i) => {
+      const fila = tabla.rows[i];
+      dias.forEach(() => {
+        const celda = document.createElement("td");
+        celda.className = "p-2 border";
+        const input = document.createElement("input");
+        input.setAttribute("type", "text");
+        celda.appendChild(input);
+        fila.appendChild(celda);
+      });
+    });
+
+    function generarMenu() {
+      const usados = { Desayuno: new Set(), Comida: new Set(), Cena: new Set() };
+
+      comidas.forEach((comida, i) => {
+        dias.forEach((_, j) => {
+          let sugerencia;
+          let intentos = 0;
+          do {
+            sugerencia = platos[comida][Math.floor(Math.random() * platos[comida].length)];
+            intentos++;
+          } while (
+            usados[comida].has(sugerencia) ||
+            (comida === "Cena" && tabla.rows[1].cells[j + 1].querySelector("input").value.includes(sugerencia)) ||
+            intentos > 10
+          );
+          usados[comida].add(sugerencia);
+          tabla.rows[i].cells[j + 1].querySelector("input").value = sugerencia;
+        });
+      });
+    }
+
+    function limpiarMenu() {
+      comidas.forEach((_, i) => {
+        dias.forEach((_, j) => {
+          tabla.rows[i].cells[j + 1].querySelector("input").value = "";
+        });
+      });
+      document.getElementById("lista-compra").value = "";
+    }
+
+    function generarLista() {
+      const ingredientes = new Set();
+      comidas.forEach((_, i) => {
+        dias.forEach((_, j) => {
+          const plato = tabla.rows[i].cells[j + 1].querySelector("input").value.trim();
+          if (plato) ingredientes.add(plato);
+        });
+      });
+      document.getElementById("lista-compra").value = [...ingredientes].join("\n");
+    }
+  </script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("sw.js")
+          .then(reg => console.log("✅ Service Worker registrado:", reg.scope))
+          .catch(err => console.error("❌ Error al registrar el Service Worker:", err));
+      });
+    }
+  </script>
+</body>
+</html>
